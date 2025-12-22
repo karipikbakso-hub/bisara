@@ -5,13 +5,13 @@ import { Play, Sparkles } from 'lucide-react';
 
 export function WazfunHero() {
   return (
-    <section className="relative min-h-screen bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden" style={{ backgroundColor: '#1f2937' }}>
       {/* Background Pattern */}
       <div className="absolute inset-0">
-        <div className="absolute top-20 left-20 w-40 h-40 bg-white/10 rounded-full animate-pulse"></div>
-        <div className="absolute top-40 right-32 w-32 h-32 bg-yellow-400/20 rounded-full animate-pulse" style={{animationDelay: '1s'}}></div>
-        <div className="absolute bottom-32 left-1/4 w-28 h-28 bg-green-400/15 rounded-full animate-pulse" style={{animationDelay: '0.5s'}}></div>
-        <div className="absolute top-1/2 right-20 w-24 h-24 bg-white/5 rounded-full animate-pulse" style={{animationDelay: '2s'}}></div>
+        <div className="absolute top-20 left-20 w-40 h-40 rounded-full animate-pulse" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}></div>
+        <div className="absolute top-40 right-32 w-32 h-32 rounded-full animate-pulse" style={{ backgroundColor: '#12cfcb', animationDelay: '1s' }}></div>
+        <div className="absolute bottom-32 left-1/4 w-28 h-28 rounded-full animate-pulse" style={{ backgroundColor: 'rgba(255, 255, 255, 0.15)', animationDelay: '0.5s' }}></div>
+        <div className="absolute top-1/2 right-20 w-24 h-24 rounded-full animate-pulse" style={{ backgroundColor: '#12cfcb', animationDelay: '2s' }}></div>
       </div>
 
       <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl text-center">
@@ -67,7 +67,7 @@ export function WazfunHero() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-yellow-400 text-blue-900 px-8 py-4 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-3"
+              className="bg-yellow-400 text-gray-900 px-8 py-4 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-3"
               style={{ fontFamily: 'Poppins, sans-serif' }}
             >
               <Play className="w-5 h-5" />

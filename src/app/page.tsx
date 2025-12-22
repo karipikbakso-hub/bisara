@@ -1,5 +1,5 @@
 
-import { HeroSection } from "@/components/HeroSection";
+import { WazfunHero } from "@/systems/wazfun/components/WazfunHero";
 import { ProblemSection } from "@/components/ProblemSection";
 import { SolutionSection } from "@/components/SolutionSection";
 import { ProductsSection } from "@/components/ProductsSection";
@@ -11,7 +11,7 @@ import { Footer } from "@/components/Footer";
 export default function Home() {
   return (
     <main>
-      <HeroSection />
+      <WazfunHero />
       <ProblemSection />
       <SolutionSection />
       <ProductsSection />

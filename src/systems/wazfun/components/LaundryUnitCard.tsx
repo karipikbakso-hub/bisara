@@ -2,8 +2,8 @@
 
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import { Play } from 'lucide-react';
-import { LaundryUnit, getMachineLabel, getMachineIcon } from '../lib/constants';
+import { Loader2, Wind, PauseCircle } from 'lucide-react';
+import { LaundryUnit } from '../lib/constants';
 
 interface LaundryUnitCardProps {
   unit: LaundryUnit;
@@ -63,244 +63,130 @@ export function LaundryUnitCard({
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // Machine panel display - industrial, not website
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: id * 0.1 }}
-      whileHover={{ scale: 1.02, y: -2 }}
-      className="bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 border-2 border-slate-100 hover:border-blue-300 relative overflow-hidden"
+    <div
+      className="border-2 border-white rounded-lg p-6 font-mono text-white min-h-[300px] relative"
+      style={{ backgroundColor: '#12cfcb' }}
     >
-      {/* Background Pattern */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-50 to-transparent rounded-full -translate-y-16 translate-x-16"></div>
-      <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-orange-50 to-transparent rounded-full translate-y-12 -translate-x-12"></div>
-
-      <div className="relative z-10">
-        {/* Unit Header */}
-        <div className="text-center p-6 border-b border-slate-100">
-          <h3
-            className="text-2xl font-black text-slate-800 mb-2"
-            style={{ fontFamily: 'Poppins, sans-serif' }}
-          >
-            Unit {id}
-          </h3>
-          <div className="w-20 h-1 bg-gradient-to-r from-blue-500 via-slate-400 to-orange-500 rounded-full mx-auto"></div>
+      {/* Unit Label */}
+      <div className="text-center mb-6">
+        <div className="text-2xl font-bold text-white border-b border-white pb-2">
+          UNIT {id}
         </div>
+      </div>
 
-        {/* Dryer Section (TOP - Smaller) */}
-        <div className="p-4 bg-gradient-to-r from-orange-50 to-orange-25 border-b border-orange-100">
-          {/* Dryer Icon & Label */}
-          <div className="flex items-center justify-between mb-3">
+      {/* Machines Status Grid */}
+      <div className="space-y-6">
+        {/* Dryer Status */}
+        <div className="flex items-center justify-between p-3 rounded border-2 border-white bg-white">
+          <div className="flex items-center gap-4">
+            <div className="text-sm font-bold text-cyan-500 w-16">DRYER</div>
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center">
-                <span className="text-lg">{getMachineIcon('dryer')}</span>
-              </div>
-              <div>
-                <div className="text-sm font-bold text-orange-800">{dryer.id}</div>
-                <div className="text-xs text-orange-600">{getMachineLabel(dryer.id)}</div>
-              </div>
-            </div>
-            <div className={`px-2 py-1 rounded-full text-xs font-semibold ${
-              dryer.status === 'available' ? 'bg-green-100 text-green-800' :
-              dryer.status === 'finished' ? 'bg-yellow-100 text-yellow-800' :
-              'bg-orange-100 text-orange-800'
-            }`}>
-              {dryer.status === 'available' ? 'Tersedia' :
-               dryer.status === 'running' ? 'Jalan' :
-               'Selesai'}
+              {dryer.status === 'running' ? (
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                >
+                  <Loader2 className="w-8 h-8 text-cyan-500" />
+                </motion.div>
+              ) : (
+                <Wind className="w-8 h-8 text-gray-400" />
+              )}
+              <span className="text-lg font-mono font-bold text-cyan-500">{dryer.id}</span>
             </div>
           </div>
 
-          {/* Dryer Progress Bar */}
-          {dryer.status === 'running' && (
-            <div className="mb-2">
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-xs font-bold text-orange-700">Progress</span>
-                <span className="text-xs font-black text-orange-600">{Math.round(dryerProgress)}%</span>
-              </div>
-              <div className="w-full h-2 bg-orange-200 rounded-full overflow-hidden">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${dryerProgress}%` }}
-                  transition={{ duration: 0.8, ease: "easeOut" }}
-                  className="h-full bg-gradient-to-r from-orange-500 to-orange-400 rounded-full"
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Dryer Timer */}
-          {dryer.status === 'running' && (
-            <div className="text-center">
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-orange-100 rounded-lg">
-                <span className="text-sm font-mono font-bold text-orange-800">
-                  {formatTime(dryerTimeLeft)}
-                </span>
-                <span className="text-xs text-orange-600">tersisa</span>
-              </div>
-            </div>
-          )}
-
-          {/* Dryer Controls (Operator Only) */}
-          {isOperator && (
-            <div className="mt-3">
-              {dryer.status === 'available' && (
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => onStartMachine?.(dryer.id)}
-                  className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-2 px-3 rounded-lg font-bold text-sm shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2"
-                  style={{ fontFamily: 'Poppins, sans-serif' }}
-                >
-                  <Play className="w-3 h-3" />
-                  Start Kering ({dryer.duration}m)
-                </motion.button>
-              )}
-
-              {dryer.status === 'finished' && (
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => onFinishMachine?.(dryer.id)}
-                  className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-2 px-3 rounded-lg font-bold text-sm shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2"
-                  style={{ fontFamily: 'Poppins, sans-serif' }}
-                >
-                  ✅ Selesai
-                </motion.button>
-              )}
-
-              {dryer.status === 'running' && (
-                <div className="text-center py-1">
-                  <div className="inline-flex items-center gap-1 px-2 py-1 bg-orange-100 rounded-md">
-                    <div className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse"></div>
-                    <span className="text-xs font-semibold text-orange-700">Mengeringkan</span>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Dryer Status Message */}
-          <div className="text-center mt-2">
-            {dryer.status === 'available' && (
-              <p className="text-xs text-orange-700">Siap digunakan untuk pengeringan</p>
-            )}
-            {dryer.status === 'finished' && (
-              <p className="text-xs text-yellow-700 font-semibold">Cucian sudah kering! 🎉</p>
-            )}
+          <div className="flex items-center gap-3">
             {dryer.status === 'running' && (
-              <p className="text-xs text-orange-700">Sedang mengeringkan cucian</p>
+              <div className="text-sm font-mono font-bold text-cyan-500">
+                {Math.floor(dryerTimeLeft)}:{Math.floor((dryerTimeLeft % 1) * 60).toString().padStart(2, '0')}
+              </div>
             )}
+            <div className={`w-3 h-3 rounded-full ${
+              dryer.status === 'available' ? 'bg-green-400' :
+              dryer.status === 'running' ? 'bg-orange-400 animate-pulse' :
+              'bg-red-400'
+            }`} />
           </div>
         </div>
 
-        {/* Washer Section (BOTTOM - Larger) */}
-        <div className="p-6 bg-gradient-to-r from-blue-50 to-blue-25">
-          {/* Washer Header */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                <span className="text-xl">{getMachineIcon('washer')}</span>
-              </div>
-              <div>
-                <div className="text-base font-bold text-blue-800">{washer.id}</div>
-                <div className="text-sm text-blue-600">{getMachineLabel(washer.id)}</div>
-              </div>
-            </div>
-            <div className={`px-3 py-1 rounded-full text-sm font-semibold ${
-              washer.status === 'available' ? 'bg-green-100 text-green-800' :
-              washer.status === 'finished' ? 'bg-yellow-100 text-yellow-800' :
-              'bg-blue-100 text-blue-800'
-            }`}>
-              {washer.status === 'available' ? 'Tersedia' :
-               washer.status === 'running' ? 'Jalan' :
-               'Selesai'}
+        {/* Washer Status */}
+        <div className="flex items-center justify-between p-3 rounded border-2 border-white bg-white">
+          <div className="flex items-center gap-4">
+            <div className="text-sm font-bold text-cyan-500 w-16">WASHER</div>
+            <div className="flex items-center gap-2">
+              {washer.status === 'running' ? (
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                >
+                  <Loader2 className="w-10 h-10 text-cyan-500" />
+                </motion.div>
+              ) : (
+                <PauseCircle className="w-10 h-10 text-gray-400" />
+              )}
+              <span className="text-lg font-mono font-bold text-cyan-500">{washer.id}</span>
             </div>
           </div>
 
-          {/* Washer Progress Bar */}
-          {washer.status === 'running' && (
-            <div className="mb-3">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-bold text-blue-700">Progress</span>
-                <span className="text-sm font-black text-blue-600">{Math.round(washerProgress)}%</span>
-              </div>
-              <div className="w-full h-3 bg-blue-200 rounded-full overflow-hidden">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${washerProgress}%` }}
-                  transition={{ duration: 0.8, ease: "easeOut" }}
-                  className="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full"
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Washer Timer */}
-          {washer.status === 'running' && (
-            <div className="text-center mb-4">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 rounded-lg">
-                <span className="text-lg font-mono font-bold text-blue-800">
-                  {formatTime(washerTimeLeft)}
-                </span>
-                <span className="text-sm text-blue-600">tersisa</span>
-              </div>
-            </div>
-          )}
-
-          {/* Washer Controls (Operator Only) */}
-          {isOperator && (
-            <div className="mb-4">
-              {washer.status === 'available' && (
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => onStartMachine?.(washer.id)}
-                  className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-xl font-bold text-base shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2"
-                  style={{ fontFamily: 'Poppins, sans-serif' }}
-                >
-                  <Play className="w-4 h-4" />
-                  Start Cuci ({washer.duration}m)
-                </motion.button>
-              )}
-
-              {washer.status === 'finished' && (
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => onFinishMachine?.(washer.id)}
-                  className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-4 rounded-xl font-bold text-base shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2"
-                  style={{ fontFamily: 'Poppins, sans-serif' }}
-                >
-                  ✅ Selesai
-                </motion.button>
-              )}
-
-              {washer.status === 'running' && (
-                <div className="text-center py-2">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 rounded-lg">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm font-semibold text-blue-700">Mencuci</span>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Washer Status Message */}
-          <div className="text-center">
-            {washer.status === 'available' && (
-              <p className="text-sm text-blue-700">Siap digunakan untuk pencucian</p>
-            )}
-            {washer.status === 'finished' && (
-              <p className="text-sm text-yellow-700 font-semibold">Cucian sudah bersih! 🎉</p>
-            )}
+          <div className="flex items-center gap-3">
             {washer.status === 'running' && (
-              <p className="text-sm text-blue-700">Sedang mencuci cucian</p>
+              <div className="text-sm font-mono font-bold text-cyan-500">
+                {Math.floor(washerTimeLeft)}:{Math.floor((washerTimeLeft % 1) * 60).toString().padStart(2, '0')}
+              </div>
             )}
+            <div className={`w-3 h-3 rounded-full ${
+              washer.status === 'available' ? 'bg-green-400' :
+              washer.status === 'running' ? 'bg-orange-400 animate-pulse' :
+              'bg-red-400'
+            }`} />
           </div>
         </div>
       </div>
-    </motion.div>
+
+      {/* Status Summary */}
+      <div className="mt-6 pt-4 border-t border-white">
+        <div className="flex justify-between text-xs font-bold text-white">
+          <span>Available: {washer.status === 'available' && dryer.status === 'available' ? '2' :
+                           washer.status === 'available' || dryer.status === 'available' ? '1' : '0'}</span>
+          <span>Running: {washer.status === 'running' && dryer.status === 'running' ? '2' :
+                          washer.status === 'running' || dryer.status === 'running' ? '1' : '0'}</span>
+        </div>
+      </div>
+
+      {/* Operator Controls - Only when needed */}
+      {isOperator && (
+        <div className="mt-4 space-y-2">
+          {washer.status === 'available' && (
+            <button
+              onClick={() => onStartMachine?.(washer.id)}
+              className="w-full bg-green-600 hover:bg-green-500 text-white py-2 px-4 rounded text-sm font-bold transition-colors"
+            >
+              START WASHER
+            </button>
+          )}
+          {dryer.status === 'available' && (
+            <button
+              onClick={() => onStartMachine?.(dryer.id)}
+              className="w-full bg-orange-600 hover:bg-orange-500 text-white py-2 px-4 rounded text-sm font-bold transition-colors"
+            >
+              START DRYER
+            </button>
+          )}
+          {(washer.status === 'finished' || dryer.status === 'finished') && (
+            <button
+              onClick={() => {
+                if (washer.status === 'finished') onFinishMachine?.(washer.id);
+                if (dryer.status === 'finished') onFinishMachine?.(dryer.id);
+              }}
+              className="w-full bg-red-600 hover:bg-red-500 text-white py-2 px-4 rounded text-sm font-bold transition-colors"
+            >
+              FINISH CYCLE
+            </button>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
