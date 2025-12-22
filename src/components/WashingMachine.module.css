@@ -1,0 +1,430 @@
+.washingMachineContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.washingMachine {
+  width: 180px;
+  height: 320px;
+  position: relative;
+  background: linear-gradient(145deg, #e2e8f0, #cbd5e1);
+  border-radius: 8px 8px 12px 12px;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  border: 2px solid #94a3b8;
+  transition: all 0.3s ease;
+}
+
+.washingMachine.available {
+  border-color: #10b981;
+  box-shadow:
+    0 4px 6px -1px rgba(16, 185, 129, 0.1),
+    0 2px 4px -1px rgba(16, 185, 129, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.washingMachine.washing {
+  border-color: #3b82f6;
+  box-shadow:
+    0 4px 6px -1px rgba(59, 130, 246, 0.1),
+    0 2px 4px -1px rgba(59, 130, 246, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.washingMachine.drying {
+  border-color: #f59e0b;
+  box-shadow:
+    0 4px 6px -1px rgba(245, 158, 11, 0.1),
+    0 2px 4px -1px rgba(245, 158, 11, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.washingMachine.wash_dry {
+  border-color: #7c3aed;
+  box-shadow:
+    0 4px 6px -1px rgba(124, 58, 237, 0.1),
+    0 2px 4px -1px rgba(124, 58, 237, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.washingMachine.finished {
+  border-color: #f59e0b;
+  box-shadow:
+    0 4px 6px -1px rgba(245, 158, 11, 0.1),
+    0 2px 4px -1px rgba(245, 158, 11, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* Control Panel */
+.controlPanel {
+  height: 35px;
+  background: linear-gradient(145deg, #374151, #4b5563);
+  border-radius: 6px 6px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+  border-bottom: 1px solid #6b7280;
+}
+
+.statusLight {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #6b7280;
+  box-shadow: 0 0 4px currentColor;
+}
+
+.statusLight.available {
+  background: #10b981;
+  color: #10b981;
+}
+
+.statusLight.washing {
+  background: #3b82f6;
+  color: #3b82f6;
+  animation: pulse 2s infinite;
+}
+
+.statusLight.drying {
+  background: #f59e0b;
+  color: #f59e0b;
+  animation: pulse 2s infinite;
+}
+
+.statusLight.wash_dry {
+  background: #7c3aed;
+  color: #7c3aed;
+  animation: pulse 2s infinite;
+}
+
+.statusLight.finished {
+  background: #f59e0b;
+  color: #f59e0b;
+}
+
+.controlButtons {
+  display: flex;
+  gap: 3px;
+}
+
+.button {
+  width: 6px;
+  height: 6px;
+  background: #6b7280;
+  border-radius: 50%;
+}
+
+/* Machine Body */
+.machineBody {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Dryer Section (Top) */
+.dryerSection {
+  position: relative;
+}
+
+.dryerSection::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 4px;
+  background: linear-gradient(145deg, #f59e0b, #d97706);
+  border-radius: 2px;
+  z-index: 1;
+}
+
+/* Washer Section (Bottom) */
+.washerSection {
+  position: relative;
+}
+
+.washerSection::before {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 4px;
+  background: linear-gradient(145deg, #3b82f6, #2563eb);
+  border-radius: 2px;
+  z-index: 1;
+}
+
+.door {
+  height: 140px;
+  background: linear-gradient(145deg, #f8fafc, #e2e8f0);
+  border-radius: 4px;
+  border: 2px solid #cbd5e1;
+  position: relative;
+  overflow: hidden;
+}
+
+.doorGlass {
+  height: 100%;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Drum */
+.drum {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #e5e7eb, #d1d5db);
+  border: 2px solid #9ca3af;
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.drum.rotating {
+  animation: rotate 3s linear infinite;
+}
+
+.drum.tumbling {
+  animation: tumble 4s ease-in-out infinite;
+}
+
+.agitatorLine {
+  position: absolute;
+  background: #6b7280;
+  border-radius: 1px;
+}
+
+.line1 {
+  width: 2px;
+  height: 60px;
+  top: 10px;
+  left: 39px;
+}
+
+.line2 {
+  width: 60px;
+  height: 2px;
+  top: 39px;
+  left: 10px;
+}
+
+.line3 {
+  width: 2px;
+  height: 40px;
+  top: 20px;
+  left: 39px;
+}
+
+.line4 {
+  width: 40px;
+  height: 2px;
+  top: 39px;
+  left: 20px;
+}
+
+.waterEffect {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%);
+  animation: waterRipple 2s ease-in-out infinite;
+}
+
+.heatEffect {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.4) 0%, transparent 80%);
+  animation: heatWave 3s ease-in-out infinite;
+}
+
+.doorHandle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 20px;
+  background: #6b7280;
+  border-radius: 2px;
+}
+
+/* Base */
+.machineBase {
+  height: 20px;
+  background: linear-gradient(145deg, #374151, #4b5563);
+  border-radius: 0 0 10px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feet {
+  display: flex;
+  gap: 20px;
+}
+
+.foot {
+  width: 8px;
+  height: 8px;
+  background: #6b7280;
+  border-radius: 50%;
+}
+
+/* Status Text */
+.statusText {
+  text-align: center;
+  font-weight: 500;
+  color: #374151;
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.inUseInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.timer {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #3b82f6;
+}
+
+/* Animations */
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes waterRipple {
+  0%, 100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+@keyframes tumble {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+  }
+  25% {
+    transform: rotate(15deg) scale(1.05);
+  }
+  50% {
+    transform: rotate(-10deg) scale(0.95);
+  }
+  75% {
+    transform: rotate(5deg) scale(1.02);
+  }
+}
+
+@keyframes heatWave {
+  0%, 100% {
+    transform: scale(0.9) rotate(0deg);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.1) rotate(180deg);
+    opacity: 0.9;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .washingMachine {
+    width: 140px;
+    height: 190px;
+  }
+
+  .drum {
+    width: 70px;
+    height: 70px;
+  }
+
+  .line1 {
+    height: 50px;
+    left: 34px;
+  }
+
+  .line2 {
+    width: 50px;
+    left: 10px;
+  }
+
+  .line3 {
+    height: 35px;
+    left: 34px;
+  }
+
+  .line4 {
+    width: 35px;
+    left: 17px;
+  }
+}
+
+@media (max-width: 480px) {
+  .washingMachine {
+    width: 120px;
+    height: 160px;
+  }
+
+  .drum {
+    width: 60px;
+    height: 60px;
+  }
+
+  .line1 {
+    height: 45px;
+    left: 29px;
+  }
+
+  .line2 {
+    width: 45px;
+    left: 7px;
+  }
+
+  .line3 {
+    height: 30px;
+    left: 29px;
+  }
+
+  .line4 {
+    width: 30px;
+    left: 15px;
+  }
+}

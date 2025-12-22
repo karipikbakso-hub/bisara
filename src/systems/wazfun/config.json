@@ -1,0 +1,30 @@
+{
+  "id": "wazfun",
+  "name": "WAZFUN Laundry",
+  "version": "1.0.0",
+  "description": "Self-service laundry monitoring system with real-time machine status",
+  "routes": {
+    "/": "pages/dashboard.tsx",
+    "/operator": "pages/operator.tsx"
+  },
+  "theme": {
+    "colors": {
+      "primary": "#4eafb4",
+      "secondary": "#FFC107",
+      "accent": "#86EFAC",
+      "background": "#ffffff"
+    },
+    "fonts": ["Poppins"]
+  },
+  "features": [
+    "real-time-monitoring",
+    "multi-machine-support",
+    "operator-panel",
+    "progress-tracking",
+    "status-badges",
+    "responsive-design"
+  ],
+  "enabled": true,
+  "createdAt": "2025-01-22T00:00:00Z",
+  "updatedAt": "2025-01-22T00:00:00Z"
+}
