@@ -11,7 +11,10 @@ import {
   LAUNDRY_UNITS,
   LOCAL_STORAGE_KEY,
   createMachineFromStorage,
-  isValidMachineData
+  isValidMachineData,
+  cleanStaleData,
+  saveMachines,
+  getTimeLeft
 } from '../lib/constants';
 
 export default function WazfunDashboard() {
@@ -19,13 +22,17 @@ export default function WazfunDashboard() {
   const [units, setUnits] = useState<LaundryUnit[]>(LAUNDRY_UNITS);
   const isInitialMount = useRef(true);
 
+  // ✅ FIXED: Initialization with stale data cleanup
   useEffect(() => {
     const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (stored) {
       try {
         const parsedData = JSON.parse(stored);
         if (isValidMachineData(parsedData)) {
-          const mergedMachines = createMachineFromStorage(parsedData);
+          // Clean stale data before merging
+          const cleanedData = cleanStaleData(parsedData);
+          const mergedMachines = createMachineFromStorage(cleanedData);
+          
           setMachines(mergedMachines);
 
           // Update units with merged machine data
@@ -40,42 +47,111 @@ export default function WazfunDashboard() {
         console.warn('Invalid localStorage data, using defaults');
       }
     }
-    // Mark that we've completed the initial load
     isInitialMount.current = false;
   }, []);
 
+  // ✅ FIXED: Save only on status change (not timer updates)
   useEffect(() => {
-    // Don't save on initial mount - only save when machines actually change after user interaction
     if (isInitialMount.current) {
       return;
     }
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(machines));
+
+    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (stored) {
+      try {
+        const parsedStored = JSON.parse(stored);
+        
+        // Check if status or startTimestamp changed (user interaction)
+        const hasStatusChange = machines.some(machine => {
+          const storedMachine = parsedStored.find((m: any) => m.id === machine.id);
+          return storedMachine && (
+            storedMachine.status !== machine.status ||
+            storedMachine.startTimestamp !== machine.startTimestamp
+          );
+        });
+
+        if (hasStatusChange) {
+          saveMachines(machines);
+        }
+      } catch (error) {
+        saveMachines(machines);
+      }
+    } else {
+      saveMachines(machines);
+    }
   }, [machines]);
 
+  // ✅ FIXED: Timer interval using startTimestamp
   useEffect(() => {
     const interval = setInterval(() => {
       setMachines(prev => {
+        let hasChanges = false;
+        
         const updatedMachines = prev.map(machine => {
-          const now = Date.now();
-
-          if (machine.status === 'running' && machine.endTime && now > machine.endTime) {
-            return { ...machine, status: 'finished' as const, endTime: undefined };
+          // Check if timer expired using startTimestamp
+          if (machine.status === 'running' && machine.startTimestamp) {
+            const timeLeft = getTimeLeft(machine);
+            
+            if (timeLeft <= 0) {
+              hasChanges = true;
+              return {
+                ...machine,
+                status: 'available' as const, // ✅ AUTO FINISH TO AVAILABLE
+                startTimestamp: undefined
+              };
+            }
           }
           return machine;
         });
 
-        // Update units with the latest machine data
-        const updatedUnits = LAUNDRY_UNITS.map(unit => ({
-          ...unit,
-          washer: updatedMachines.find(m => m.id === unit.washer.id) || unit.washer,
-          dryer: updatedMachines.find(m => m.id === unit.dryer.id) || unit.dryer
-        }));
-        setUnits(updatedUnits);
+        // Save immediately when status changes
+        if (hasChanges) {
+          saveMachines(updatedMachines);
+          
+          // Update units
+          const updatedUnits = LAUNDRY_UNITS.map(unit => ({
+            ...unit,
+            washer: updatedMachines.find(m => m.id === unit.washer.id) || unit.washer,
+            dryer: updatedMachines.find(m => m.id === unit.dryer.id) || unit.dryer
+          }));
+          setUnits(updatedUnits);
+        }
 
         return updatedMachines;
       });
     }, 1000);
+    
     return () => clearInterval(interval);
+  }, []);
+
+  // ✅ NEW: Multi-tab sync
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === LOCAL_STORAGE_KEY && e.newValue) {
+        try {
+          const parsedData = JSON.parse(e.newValue);
+          if (isValidMachineData(parsedData)) {
+            const cleanedData = cleanStaleData(parsedData);
+            const mergedMachines = createMachineFromStorage(cleanedData);
+            
+            setMachines(mergedMachines);
+            
+            // Update units
+            const updatedUnits = LAUNDRY_UNITS.map(unit => ({
+              ...unit,
+              washer: mergedMachines.find(m => m.id === unit.washer.id) || unit.washer,
+              dryer: mergedMachines.find(m => m.id === unit.dryer.id) || unit.dryer
+            }));
+            setUnits(updatedUnits);
+          }
+        } catch (error) {
+          console.warn('Invalid storage event data');
+        }
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   return (

@@ -2,7 +2,7 @@ export interface Machine {
   id: string; // "W1", "D1", "W2", "D2", etc.
   type: 'washer' | 'dryer';
   status: 'available' | 'running' | 'finished';
-  endTime?: number;
+  startTimestamp?: number; // ✅ CHANGED: Unix timestamp in milliseconds
   duration: number; // in minutes
 }
 
@@ -82,25 +82,48 @@ export const LOCAL_STORAGE_KEY = 'wazfun-machines';
 export const WASH_DURATION_MINUTES = 40;
 export const DRY_DURATION_MINUTES = 50;
 
-// Utility functions for machine management
-export const createMachineFromStorage = (storedData: any[]): Machine[] => {
-  // Merge stored data with initial machines
-  const machines = [...MACHINES];
+// ✅ NEW: Utility functions for timer calculations
+export const getTimeLeft = (machine: Machine): number => {
+  if (machine.status !== 'running' || !machine.startTimestamp) {
+    return 0;
+  }
+  
+  const elapsedMs = Date.now() - machine.startTimestamp;
+  const elapsedMinutes = elapsedMs / 60000;
+  const remainingMinutes = machine.duration - elapsedMinutes;
+  
+  return Math.max(0, remainingMinutes);
+};
 
-  storedData.forEach((storedMachine: any) => {
-    const index = machines.findIndex(m => m.id === storedMachine.id);
-    if (index !== -1) {
-      machines[index] = {
-        ...machines[index],
+export const getRemainingSeconds = (machine: Machine): number => {
+  return Math.floor(getTimeLeft(machine) * 60);
+};
+
+export const formatTime = (minutes: number): string => {
+  const totalSeconds = Math.floor(minutes * 60);
+  const mins = Math.floor(totalSeconds / 60);
+  const secs = totalSeconds % 60;
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+};
+
+// ✅ FIXED: Proper merge logic
+export const createMachineFromStorage = (storedData: any[]): Machine[] => {
+  const defaultMachines = [...MACHINES];
+  
+  return defaultMachines.map(defaultMachine => {
+    const storedMachine = storedData.find((m: any) => m.id === defaultMachine.id);
+    
+    if (storedMachine) {
+      return {
         ...storedMachine,
-        // Ensure type and duration remain correct
-        type: machines[index].type,
-        duration: machines[index].duration
+        // Ensure type and duration from defaults (never trust stored values)
+        type: defaultMachine.type,
+        duration: defaultMachine.duration
       };
     }
+    
+    return defaultMachine;
   });
-
-  return machines;
 };
 
 export const isValidMachineData = (data: any): boolean => {
@@ -111,6 +134,34 @@ export const isValidMachineData = (data: any): boolean => {
            (machine.type === 'washer' || machine.type === 'dryer') &&
            ['available', 'running', 'finished'].includes(machine.status)
          );
+};
+
+// ✅ NEW: Clean stale data on load
+export const cleanStaleData = (machines: Machine[]): Machine[] => {
+  return machines.map(machine => {
+    if (machine.status === 'running' && machine.startTimestamp) {
+      const timeLeft = getTimeLeft(machine);
+      
+      // If timer expired, mark as finished
+      if (timeLeft <= 0) {
+        return {
+          ...machine,
+          status: 'finished',
+          startTimestamp: undefined
+        };
+      }
+    }
+    return machine;
+  });
+};
+
+// ✅ NEW: Safe localStorage save
+export const saveMachines = (machines: Machine[]): void => {
+  try {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(machines));
+  } catch (error) {
+    console.error('Failed to save machines to localStorage:', error);
+  }
 };
 
 export const getMachineLabel = (id: string): string => {
