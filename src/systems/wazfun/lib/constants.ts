@@ -4,6 +4,7 @@ export interface Machine {
   status: 'available' | 'running' | 'finished';
   startTimestamp?: number; // ✅ CHANGED: Unix timestamp in milliseconds
   duration: number; // in minutes
+  endTime?: number; // Timestamp when machine will finish
 }
 
 export interface LaundryUnit {
